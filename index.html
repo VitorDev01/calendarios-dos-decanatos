@@ -1,0 +1,789 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Decanatos do Zodíaco — Calendário Completo</title>
+  <style>
+    :root {
+      --bg: #0f0f13;
+      --card: #1a1a22;
+      --card-hover: #22222c;
+      --text: #e8e6f0;
+      --muted: #9b97a8;
+      --accent: #a78bfa;
+      --border: #2a2a35;
+      --aries: #ef4444;
+      --taurus: #22c55e;
+      --gemini: #eab308;
+      --cancer: #3b82f6;
+      --leo: #f97316;
+      --virgo: #84cc16;
+      --libra: #ec4899;
+      --scorpio: #8b5cf6;
+      --sagittarius: #f59e0b;
+      --capricorn: #64748b;
+      --aquarius: #06b6d4;
+      --pisces: #6366f1;
+    }
+
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      line-height: 1.5;
+      min-height: 100vh;
+      padding: 0 0 60px;
+    }
+
+    header {
+      background: linear-gradient(135deg, #1a1025 0%, #0f0f13 100%);
+      border-bottom: 1px solid var(--border);
+      padding: 28px 20px 24px;
+      text-align: center;
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      backdrop-filter: blur(12px);
+    }
+
+    header h1 {
+      font-size: 1.75rem;
+      font-weight: 700;
+      letter-spacing: -0.02em;
+      background: linear-gradient(90deg, #c4b5fd, #a78bfa, #818cf8);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+
+    header p {
+      color: var(--muted);
+      font-size: 0.95rem;
+      margin-top: 6px;
+      max-width: 560px;
+      margin-left: auto;
+      margin-right: auto;
+    }
+
+    .container {
+      max-width: 1100px;
+      margin: 0 auto;
+      padding: 24px 16px;
+    }
+
+    /* ===== BUSCA ===== */
+    .search-box {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 20px;
+      margin-bottom: 28px;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 12px;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .search-box label {
+      font-size: 0.9rem;
+      color: var(--muted);
+    }
+
+    .search-box input[type="date"] {
+      background: #121218;
+      border: 1px solid var(--border);
+      color: var(--text);
+      padding: 10px 14px;
+      border-radius: 10px;
+      font-size: 1rem;
+      outline: none;
+    }
+
+    .search-box input[type="date"]:focus {
+      border-color: var(--accent);
+    }
+
+    .btn {
+      background: var(--accent);
+      color: #0f0f13;
+      border: none;
+      padding: 10px 20px;
+      border-radius: 10px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: transform 0.15s, opacity 0.15s;
+    }
+
+    .btn:hover {
+      transform: translateY(-1px);
+      opacity: 0.9;
+    }
+
+    #result-box {
+      display: none;
+      background: linear-gradient(135deg, #1e1b2e, #1a1a22);
+      border: 1px solid #3b3460;
+      border-radius: 14px;
+      padding: 18px 22px;
+      margin-bottom: 28px;
+      text-align: center;
+    }
+
+    #result-box.show {
+      display: block;
+    }
+
+    #result-box .sign-name {
+      font-size: 1.4rem;
+      font-weight: 700;
+      margin-bottom: 4px;
+    }
+
+    #result-box .decan-info {
+      color: var(--muted);
+      font-size: 0.95rem;
+    }
+
+    /* ===== CALENDÁRIO ===== */
+    .calendar-section {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 18px;
+      padding: 20px;
+      margin-bottom: 32px;
+    }
+
+    .calendar-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 16px;
+    }
+
+    .calendar-header h2 {
+      font-size: 1.25rem;
+      font-weight: 600;
+    }
+
+    .nav-btn {
+      background: #121218;
+      border: 1px solid var(--border);
+      color: var(--text);
+      width: 36px;
+      height: 36px;
+      border-radius: 10px;
+      cursor: pointer;
+      font-size: 1.1rem;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: background 0.15s;
+    }
+
+    .nav-btn:hover {
+      background: var(--card-hover);
+    }
+
+    .weekdays {
+      display: grid;
+      grid-template-columns: repeat(7, 1fr);
+      gap: 4px;
+      margin-bottom: 6px;
+      text-align: center;
+      font-size: 0.75rem;
+      color: var(--muted);
+      font-weight: 600;
+      text-transform: uppercase;
+    }
+
+    .days {
+      display: grid;
+      grid-template-columns: repeat(7, 1fr);
+      gap: 4px;
+    }
+
+    .day {
+      aspect-ratio: 1;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      border-radius: 10px;
+      font-size: 0.85rem;
+      cursor: default;
+      position: relative;
+      background: #121218;
+      border: 1px solid transparent;
+      transition: transform 0.1s;
+    }
+
+    .day:hover:not(.empty) {
+      transform: scale(1.05);
+      z-index: 2;
+    }
+
+    .day.empty {
+      background: transparent;
+      border: none;
+    }
+
+    .day .num {
+      font-weight: 600;
+      line-height: 1;
+    }
+
+    .day .sign-dot {
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      margin-top: 3px;
+    }
+
+    .day.today {
+      border: 2px solid #fff;
+      box-shadow: 0 0 0 2px rgba(255,255,255,0.15);
+    }
+
+    .day.decan1 { opacity: 1; }
+    .day.decan2 { opacity: 0.85; }
+    .day.decan3 { opacity: 0.7; }
+
+    /* ===== LEGENDA ===== */
+    .legend {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px 16px;
+      margin-top: 18px;
+      justify-content: center;
+      font-size: 0.8rem;
+      color: var(--muted);
+    }
+
+    .legend-item {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .legend-dot {
+      width: 10px;
+      height: 10px;
+      border-radius: 50%;
+    }
+
+    /* ===== GRID DE SIGNOS ===== */
+    .signs-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+      gap: 18px;
+    }
+
+    .sign-card {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      overflow: hidden;
+      transition: border-color 0.2s;
+    }
+
+    .sign-card:hover {
+      border-color: #3f3f4d;
+    }
+
+    .sign-header {
+      padding: 14px 16px;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .sign-symbol {
+      font-size: 1.8rem;
+      width: 42px;
+      height: 42px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border-radius: 12px;
+      background: rgba(255,255,255,0.05);
+    }
+
+    .sign-title h3 {
+      font-size: 1.15rem;
+      font-weight: 700;
+    }
+
+    .sign-title span {
+      font-size: 0.8rem;
+      color: var(--muted);
+    }
+
+    .decan-list {
+      padding: 8px 0;
+    }
+
+    .decan-item {
+      padding: 12px 16px;
+      display: grid;
+      grid-template-columns: 28px 1fr;
+      gap: 10px;
+      align-items: start;
+      border-bottom: 1px solid rgba(255,255,255,0.04);
+    }
+
+    .decan-item:last-child {
+      border-bottom: none;
+    }
+
+    .decan-num {
+      width: 26px;
+      height: 26px;
+      border-radius: 8px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 0.75rem;
+      font-weight: 700;
+      color: #0f0f13;
+    }
+
+    .decan-content strong {
+      display: block;
+      font-size: 0.9rem;
+      margin-bottom: 2px;
+    }
+
+    .decan-content .dates {
+      font-size: 0.8rem;
+      color: var(--muted);
+    }
+
+    .decan-content .ruler {
+      font-size: 0.78rem;
+      color: #b0a8c8;
+      margin-top: 2px;
+    }
+
+    /* Cores por signo */
+    .aries .sign-symbol { color: var(--aries); }
+    .taurus .sign-symbol { color: var(--taurus); }
+    .gemini .sign-symbol { color: var(--gemini); }
+    .cancer .sign-symbol { color: var(--cancer); }
+    .leo .sign-symbol { color: var(--leo); }
+    .virgo .sign-symbol { color: var(--virgo); }
+    .libra .sign-symbol { color: var(--libra); }
+    .scorpio .sign-symbol { color: var(--scorpio); }
+    .sagittarius .sign-symbol { color: var(--sagittarius); }
+    .capricorn .sign-symbol { color: var(--capricorn); }
+    .aquarius .sign-symbol { color: var(--aquarius); }
+    .pisces .sign-symbol { color: var(--pisces); }
+
+    .aries .decan-num { background: var(--aries); }
+    .taurus .decan-num { background: var(--taurus); }
+    .gemini .decan-num { background: var(--gemini); }
+    .cancer .decan-num { background: var(--cancer); }
+    .leo .decan-num { background: var(--leo); }
+    .virgo .decan-num { background: var(--virgo); }
+    .libra .decan-num { background: var(--libra); }
+    .scorpio .decan-num { background: var(--scorpio); }
+    .sagittarius .decan-num { background: var(--sagittarius); }
+    .capricorn .decan-num { background: var(--capricorn); }
+    .aquarius .decan-num { background: var(--aquarius); }
+    .pisces .decan-num { background: var(--pisces); }
+
+    footer {
+      text-align: center;
+      padding: 30px 16px 10px;
+      color: var(--muted);
+      font-size: 0.8rem;
+    }
+
+    @media (max-width: 600px) {
+      header h1 { font-size: 1.4rem; }
+      .signs-grid { grid-template-columns: 1fr; }
+      .day { font-size: 0.75rem; }
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <h1>✦ Decanatos do Zodíaco</h1>
+    <p>Cada signo é dividido em 3 partes de ±10 dias. Descubra o seu e veja o calendário completo.</p>
+  </header>
+
+  <div class="container">
+    <!-- Busca por data -->
+    <div class="search-box">
+      <label for="birthdate">Sua data de nascimento:</label>
+      <input type="date" id="birthdate">
+      <button class="btn" onclick="findDecan()">Descobrir Decanato</button>
+    </div>
+
+    <div id="result-box">
+      <div class="sign-name" id="result-sign"></div>
+      <div class="decan-info" id="result-decan"></div>
+    </div>
+
+    <!-- Calendário -->
+    <div class="calendar-section">
+      <div class="calendar-header">
+        <button class="nav-btn" onclick="changeMonth(-1)">‹</button>
+        <h2 id="month-year"></h2>
+        <button class="nav-btn" onclick="changeMonth(1)">›</button>
+      </div>
+      <div class="weekdays">
+        <div>Dom</div><div>Seg</div><div>Ter</div><div>Qua</div><div>Qui</div><div>Sex</div><div>Sáb</div>
+      </div>
+      <div class="days" id="calendar-days"></div>
+      <div class="legend" id="legend"></div>
+    </div>
+
+    <!-- Cards dos signos -->
+    <div class="signs-grid" id="signs-grid"></div>
+  </div>
+
+  <footer>
+    Datas aproximadas (astrologia tropical). Em dias de transição o Sol pode estar em graus limítrofes — o mapa astral com hora confirma o decanato exato.
+  </footer>
+
+  <script>
+    // Dados completos dos decanatos
+    const signs = [
+      {
+        name: "Áries",
+        symbol: "♈",
+        class: "aries",
+        color: "#ef4444",
+        range: [3, 21, 4, 20],
+        decans: [
+          { num: 1, start: [3, 21], end: [3, 31], ruler: "Marte", desc: "Energia pura, impulsivo e pioneiro" },
+          { num: 2, start: [4, 1], end: [4, 10], ruler: "Sol", desc: "Carismático, confiante e com brilho de liderança" },
+          { num: 3, start: [4, 11], end: [4, 20], ruler: "Júpiter", desc: "Aventureiro, otimista e expansivo" }
+        ]
+      },
+      {
+        name: "Touro",
+        symbol: "♉",
+        class: "taurus",
+        color: "#22c55e",
+        range: [4, 21, 5, 20],
+        decans: [
+          { num: 1, start: [4, 21], end: [4, 30], ruler: "Vênus", desc: "Sensual, estável e apreciador do conforto" },
+          { num: 2, start: [5, 1], end: [5, 10], ruler: "Mercúrio", desc: "Prático, comunicativo e detalhista" },
+          { num: 3, start: [5, 11], end: [5, 20], ruler: "Saturno", desc: "Persistente, ambicioso e disciplinado" }
+        ]
+      },
+      {
+        name: "Gêmeos",
+        symbol: "♊",
+        class: "gemini",
+        color: "#eab308",
+        range: [5, 21, 6, 20],
+        decans: [
+          { num: 1, start: [5, 21], end: [5, 30], ruler: "Mercúrio", desc: "Curioso, versátil e comunicativo" },
+          { num: 2, start: [5, 31], end: [6, 9], ruler: "Vênus", desc: "Diplomático, sociável e encantador" },
+          { num: 3, start: [6, 10], end: [6, 20], ruler: "Urano", desc: "Original, inovador e independente" }
+        ]
+      },
+      {
+        name: "Câncer",
+        symbol: "♋",
+        class: "cancer",
+        color: "#3b82f6",
+        range: [6, 21, 7, 22],
+        decans: [
+          { num: 1, start: [6, 21], end: [6, 30], ruler: "Lua", desc: "Emocional, protetor e intuitivo" },
+          { num: 2, start: [7, 1], end: [7, 10], ruler: "Plutão", desc: "Profundo, intenso e transformador" },
+          { num: 3, start: [7, 11], end: [7, 22], ruler: "Netuno", desc: "Compassivo, sonhador e artístico" }
+        ]
+      },
+      {
+        name: "Leão",
+        symbol: "♌",
+        class: "leo",
+        color: "#f97316",
+        range: [7, 23, 8, 22],
+        decans: [
+          { num: 1, start: [7, 23], end: [7, 31], ruler: "Sol", desc: "Radiante, generoso e com presença natural" },
+          { num: 2, start: [8, 1], end: [8, 11], ruler: "Júpiter", desc: "Expansivo, otimista e generoso" },
+          { num: 3, start: [8, 12], end: [8, 22], ruler: "Marte", desc: "Dinâmico, corajoso e determinado" }
+        ]
+      },
+      {
+        name: "Virgem",
+        symbol: "♍",
+        class: "virgo",
+        color: "#84cc16",
+        range: [8, 23, 9, 22],
+        decans: [
+          { num: 1, start: [8, 23], end: [9, 1], ruler: "Mercúrio", desc: "Analítico, preciso e prestativo" },
+          { num: 2, start: [9, 2], end: [9, 11], ruler: "Saturno", desc: "Disciplinado, responsável e metódico" },
+          { num: 3, start: [9, 12], end: [9, 22], ruler: "Vênus", desc: "Harmonioso, refinado e com bom gosto" }
+        ]
+      },
+      {
+        name: "Libra",
+        symbol: "♎",
+        class: "libra",
+        color: "#ec4899",
+        range: [9, 23, 10, 22],
+        decans: [
+          { num: 1, start: [9, 23], end: [10, 1], ruler: "Vênus", desc: "Diplomático, estético e buscador de equilíbrio" },
+          { num: 2, start: [10, 2], end: [10, 11], ruler: "Urano", desc: "Original, progressista e independente" },
+          { num: 3, start: [10, 12], end: [10, 22], ruler: "Mercúrio", desc: "Comunicativo, intelectual e versátil" }
+        ]
+      },
+      {
+        name: "Escorpião",
+        symbol: "♏",
+        class: "scorpio",
+        color: "#8b5cf6",
+        range: [10, 23, 11, 21],
+        decans: [
+          { num: 1, start: [10, 23], end: [11, 1], ruler: "Plutão", desc: "Intenso, magnético e transformador" },
+          { num: 2, start: [11, 2], end: [11, 11], ruler: "Netuno", desc: "Intuitivo, místico e compassivo" },
+          { num: 3, start: [11, 12], end: [11, 21], ruler: "Lua", desc: "Emocional, protetor e profundo" }
+        ]
+      },
+      {
+        name: "Sagitário",
+        symbol: "♐",
+        class: "sagittarius",
+        color: "#f59e0b",
+        range: [11, 22, 12, 21],
+        decans: [
+          { num: 1, start: [11, 22], end: [12, 1], ruler: "Júpiter", desc: "Otimista, aventureiro e filosófico (puro)" },
+          { num: 2, start: [12, 2], end: [12, 11], ruler: "Marte", desc: "Ousado, ativo e desbravador" },
+          { num: 3, start: [12, 12], end: [12, 21], ruler: "Sol", desc: "Carismático, líder e inspirador" }
+        ]
+      },
+      {
+        name: "Capricórnio",
+        symbol: "♑",
+        class: "capricorn",
+        color: "#64748b",
+        range: [12, 22, 1, 19],
+        decans: [
+          { num: 1, start: [12, 22], end: [12, 31], ruler: "Saturno", desc: "Ambicioso, disciplinado e responsável" },
+          { num: 2, start: [1, 1], end: [1, 10], ruler: "Vênus", desc: "Prático, leal e com senso estético" },
+          { num: 3, start: [1, 11], end: [1, 19], ruler: "Mercúrio", desc: "Estratégico, comunicativo e inteligente" }
+        ]
+      },
+      {
+        name: "Aquário",
+        symbol: "♒",
+        class: "aquarius",
+        color: "#06b6d4",
+        range: [1, 20, 2, 18],
+        decans: [
+          { num: 1, start: [1, 20], end: [1, 29], ruler: "Urano", desc: "Inovador, humanitário e original" },
+          { num: 2, start: [1, 30], end: [2, 8], ruler: "Mercúrio", desc: "Intelectual, comunicativo e curioso" },
+          { num: 3, start: [2, 9], end: [2, 18], ruler: "Vênus", desc: "Amigável, idealista e sociável" }
+        ]
+      },
+      {
+        name: "Peixes",
+        symbol: "♓",
+        class: "pisces",
+        color: "#6366f1",
+        range: [2, 19, 3, 20],
+        decans: [
+          { num: 1, start: [2, 19], end: [2, 28], ruler: "Netuno", desc: "Sonhador, compassivo e intuitivo" },
+          { num: 2, start: [3, 1], end: [3, 10], ruler: "Lua", desc: "Emocional, sensível e protetor" },
+          { num: 3, start: [3, 11], end: [3, 20], ruler: "Plutão", desc: "Profundo, transformador e místico" }
+        ]
+      }
+    ];
+
+    // Estado do calendário
+    let currentDate = new Date();
+    let viewYear = currentDate.getFullYear();
+    let viewMonth = currentDate.getMonth(); // 0-11
+
+    // Função auxiliar
+    function isInRange(month, day, start, end) {
+      const d = month * 100 + day;
+      const s = start[0] * 100 + start[1];
+      const e = end[0] * 100 + end[1];
+
+      // Caso especial Capricórnio (cruza ano)
+      if (start[0] > end[0]) {
+        return d >= s || d <= e;
+      }
+      return d >= s && d <= e;
+    }
+
+    function getSignAndDecan(month, day) {
+      for (const sign of signs) {
+        for (const decan of sign.decans) {
+          if (isInRange(month, day, decan.start, decan.end)) {
+            return { sign, decan };
+          }
+        }
+      }
+      return null;
+    }
+
+    // Renderizar cards dos signos
+    function renderSigns() {
+      const grid = document.getElementById('signs-grid');
+      grid.innerHTML = signs.map(sign => `
+        <div class="sign-card ${sign.class}">
+          <div class="sign-header">
+            <div class="sign-symbol">${sign.symbol}</div>
+            <div class="sign-title">
+              <h3>${sign.name}</h3>
+              <span>${formatRange(sign)}</span>
+            </div>
+          </div>
+          <div class="decan-list">
+            ${sign.decans.map(d => `
+              <div class="decan-item">
+                <div class="decan-num">${d.num}º</div>
+                <div class="decan-content">
+                  <strong>${d.desc}</strong>
+                  <div class="dates">${formatDecanDates(d)}</div>
+                  <div class="ruler">Regente: ${d.ruler}</div>
+                </div>
+              </div>
+            `).join('')}
+          </div>
+        </div>
+      `).join('');
+    }
+
+    function formatRange(sign) {
+      const r = sign.range;
+      const months = ['', 'jan', 'fev', 'mar', 'abr', 'mai', 'jun', 'jul', 'ago', 'set', 'out', 'nov', 'dez'];
+      if (r[0] === 12 && r[2] === 1) {
+        return `${r[1]} de dezembro – ${r[3]} de janeiro`;
+      }
+      return `${r[1]} de ${months[r[0]]} – ${r[3]} de ${months[r[2]]}`;
+    }
+
+    function formatDecanDates(d) {
+      const months = ['', 'janeiro', 'fevereiro', 'março', 'abril', 'maio', 'junho',
+                      'julho', 'agosto', 'setembro', 'outubro', 'novembro', 'dezembro'];
+      if (d.start[0] === d.end[0]) {
+        return `${d.start[1]} a ${d.end[1]} de ${months[d.start[0]]}`;
+      }
+      return `${d.start[1]} de ${months[d.start[0]]} a ${d.end[1]} de ${months[d.end[0]]}`;
+    }
+
+    // Calendário
+    function renderCalendar() {
+      const year = viewYear;
+      const month = viewMonth;
+      const firstDay = new Date(year, month, 1).getDay();
+      const daysInMonth = new Date(year, month + 1, 0).getDate();
+      const today = new Date();
+
+      const monthNames = ['Janeiro', 'Fevereiro', 'Março', 'Abril', 'Maio', 'Junho',
+                          'Julho', 'Agosto', 'Setembro', 'Outubro', 'Novembro', 'Dezembro'];
+      document.getElementById('month-year').textContent = `${monthNames[month]} ${year}`;
+
+      const container = document.getElementById('calendar-days');
+      container.innerHTML = '';
+
+      // Dias vazios
+      for (let i = 0; i < firstDay; i++) {
+        const empty = document.createElement('div');
+        empty.className = 'day empty';
+        container.appendChild(empty);
+      }
+
+      // Dias do mês
+      for (let day = 1; day <= daysInMonth; day++) {
+        const cell = document.createElement('div');
+        cell.className = 'day';
+
+        const info = getSignAndDecan(month + 1, day);
+        if (info) {
+          cell.style.background = info.sign.color + '22';
+          cell.style.borderColor = info.sign.color + '44';
+          cell.classList.add(`decan${info.decan.num}`);
+          cell.title = `${info.sign.name} — ${info.decan.num}º decanato (${info.decan.ruler})`;
+        }
+
+        if (day === today.getDate() && month === today.getMonth() && year === today.getFullYear()) {
+          cell.classList.add('today');
+        }
+
+        cell.innerHTML = `
+          <span class="num">${day}</span>
+          ${info ? `<span class="sign-dot" style="background:${info.sign.color}"></span>` : ''}
+        `;
+        container.appendChild(cell);
+      }
+
+      // Legenda
+      const legend = document.getElementById('legend');
+      legend.innerHTML = signs.map(s => `
+        <div class="legend-item">
+          <span class="legend-dot" style="background:${s.color}"></span>
+          ${s.symbol} ${s.name}
+        </div>
+      `).join('');
+    }
+
+    function changeMonth(delta) {
+      viewMonth += delta;
+      if (viewMonth > 11) {
+        viewMonth = 0;
+        viewYear++;
+      } else if (viewMonth < 0) {
+        viewMonth = 11;
+        viewYear--;
+      }
+      renderCalendar();
+    }
+
+    // Busca por data de nascimento
+    function findDecan() {
+      const input = document.getElementById('birthdate').value;
+      if (!input) {
+        alert('Escolha uma data de nascimento.');
+        return;
+      }
+      const [y, m, d] = input.split('-').map(Number);
+      const info = getSignAndDecan(m, d);
+
+      const box = document.getElementById('result-box');
+      if (info) {
+        document.getElementById('result-sign').innerHTML =
+          `${info.sign.symbol} ${info.sign.name}`;
+        document.getElementById('result-decan').innerHTML =
+          `<strong>${info.decan.num}º Decanato</strong> · Regente: ${info.decan.ruler}<br>
+           ${info.decan.desc}<br>
+           <small style="opacity:0.7">${formatDecanDates(info.decan)}</small>`;
+        box.classList.add('show');
+
+        // Ir para o mês do aniversário
+        viewMonth = m - 1;
+        viewYear = y;
+        renderCalendar();
+      } else {
+        box.classList.remove('show');
+        alert('Não foi possível identificar o decanato.');
+      }
+    }
+
+    // Inicialização
+    renderSigns();
+    renderCalendar();
+
+    // Preencher data de hoje como exemplo
+    const todayStr = new Date().toISOString().split('T')[0];
+    document.getElementById('birthdate').value = todayStr;
+  </script>
+</body>
+</html>
